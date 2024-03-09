@@ -21,8 +21,14 @@ const _nav = [
 
   {
     component: CNavItem,
-    name: 'Add Company',
-    to: '/companyAdd',
+    name: 'Report',
+    to: '/report',
+    icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'PaymentReport',
+    to: '/PaymentReport',
     icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
   },
 

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Form, Button } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { CCard, CCardHeader, CForm, CFormInput, CCardBody, CButton, CFormSelect } from '@coreui/react';
 const AddCompany = () => {
     return (

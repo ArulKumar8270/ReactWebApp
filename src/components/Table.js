@@ -1,264 +1,129 @@
-import React, { useState } from 'react'
-import { CAvatar, CBadge, CButton, CCard, CCardBody, CCardHeader, CCol, CCollapse, CRow } from '@coreui/react'
-import { CSmartTable } from '@coreui/react-pro'
-const Table = () => {
-    const [details, setDetails] = useState([])
-    const columns = [
+import React, { useState } from "react";
+import { CSmartTable} from "@coreui/react-pro";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import {
+  CButton,
+  CModal,
+  CModalBody,
+  CModalHeader,
+  CModalTitle,
+} from "@coreui/react";
+import Dashboard from "src/views/dashboard/Dashboard";
 
-        {
-            key: 'From_Company',
-            _style: { width: '20%' },
-        },
-        {
-            key: 'To_Company',
-            _style: { width: '20%' }
-        },
-        {
-            key: 'Date',
-            _style: { width: '20%' }
-        },
-        {
-            key: 'Company_Type',
-            _style: { width: '20%' }
-        },
-        {
-            key: 'status',
-            _style: { width: '20%' }
-        },
-        {
-            key: 'show_details',
-            label: '',
-            _style: { width: '1%' },
-            filter: false,
-            sorter: false,
-        },
-    ]
-    const usersData = [
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
-        {
-            id: 1,
-            From_Company: 'Samppa Nori',
-            To_Company: '1.jpg',
-            Date: '2022/01/01',
-            Company_Type: 'Member',
-            status: 'Active',
-        },
+const Table = ({ data, columns }) => {
+  const [visible, setVisible] = useState(false);
+  const [updatedata, setUpdatedata] = useState(null);
+  const navigate = useNavigate();
 
+  console.log(updatedata, "updatedata");
 
-    ]
-    const getBadge = (status) => {
-        switch (status) {
-            case 'Active':
-                return 'success'
-            case 'Inactive':
-                return 'secondary'
-            case 'Pending':
-                return 'warning'
-            case 'Banned':
-                return 'danger'
-            default:
-                return 'primary'
-        }
+  const getPendingAmount = (item) => {
+    const pendingAmount = Math.max(
+      0,
+      parseFloat(item.to_total_amount) - parseFloat(item.paid_amount)
+    );
+    return pendingAmount;
+  };
+  
+  const UpdateFunc = (item) => {
+    setUpdatedata(item);
+    setVisible(true);
+  };
+  const onDeleteFun = async (item) => {
+    try {
+      if (item?.id) {
+        const response = await axios.delete(`https://api.vaahansafety.org/api/transportations/${item.id}`);
+        console.log('Response:', response.data);
+        // Reload the page after the deletion operation is completed
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
-    const toggleDetails = (index) => {
-        const position = details.indexOf(index)
-        let newDetails = details.slice()
-        if (position !== -1) {
-            newDetails.splice(position, 1)
-        } else {
-            newDetails = [...details, index]
-        }
-        setDetails(newDetails)
-    }
-    return (
-        <CSmartTable
-            activePage={2}
-            cleaner
-            clickableRows
-            columns={columns}
-            columnFilter
-            columnSorter
-            footer
-            items={usersData}
-            itemsPerPageSelect
-            itemsPerPage={5}
-            pagination
-            onFilteredItemsChange={(items) => {
-                console.log(items)
-            }}
-            onSelectedItemsChange={(items) => {
-                console.log(items)
-            }}
-            scopedColumns={{
-                avatar: (item) => (
-                    <td>
-                        <CAvatar src={`/images/avatars/${item.avatar}`} />
-                    </td>
-                ),
-                status: (item) => (
-                    <td>
-                        <CBadge color={getBadge(item.status)}>{item.status}</CBadge>
-                    </td>
-                ),
-                show_details: (item) => {
-                    return (
-                        <td className="py-2">
-                            <CButton
-                                color="primary"
-                                variant="outline"
-                                shape="square"
-                                size="sm"
-                                // onClick={() => {
-                                //     toggleDetails(item.id)
-                                // }}
-                            >
-                                {details.includes(item.id) ? 'Hide' : 'Show'}
-                            </CButton>
-                        </td>
-                    )
-                },
-                details: (item) => {
-                    return (
-                        <CCollapse visible={details.includes(item.id)}>
-                            <CCardBody className="p-3">
-                                <h4>{item.username}</h4>
-                                <p className="text-muted">User since: {item.registered}</p>
-                                <CButton size="sm" color="info">
-                                    User Settings
-                                </CButton>
-                                <CButton size="sm" color="danger" className="ml-1">
-                                    Delete
-                                </CButton>
-                            </CCardBody>
-                        </CCollapse>
-                    )
-                },
-            }}
-            selectable
-            sorterValue={{ column: 'status', state: 'asc' }}
-            tableFilter
-            tableProps={{
-                className: 'add-this-class',
-                responsive: true,
-                striped: true,
-                hover: true,
-            }}
-            tableBodyProps={{
-                className: 'align-middle'
-            }}
-        />
-    )
-}
+  };
+  
+  return (
+    <div className="">
+      <CSmartTable
+        activePage={2}
+        columns={columns}
+        columnFilter
+        columnSorter
+        items={data}
+        itemsPerPageSelect
+        itemsPerPage={50}
+        pagination
+        tableProps={{
+          className: "add-this-class width-max",
+          responsive: true,
+          striped: true,
+          hover: true,
+        }}
+        tableBodyProps={{
+          className: "align-middle",
+        }}
+        scopedColumns={{
+          pending_amount: (item) => {
+            console.log(item, "data");
 
-export default Table
+            return (
+              <td>
+                {getPendingAmount(item) === 0 ? (
+                  <p
+                    style={{
+                      color: "white",
+                      backgroundColor: "green",
+                      padding: "5px",
+                    }}
+                  >
+                    {getPendingAmount(item)}
+                  </p>
+                ) : (
+                  <p
+                    style={{
+                      color: "white",
+                      backgroundColor: "red",
+                      padding: "5px",
+                    }}
+                  >
+                    {getPendingAmount(item)}
+                  </p>
+                )}
+              </td>
+            );
+          },
+          action: (item) => {
+            return (
+              <td className="text-center">
+                <CButton color={"danger"} className="me-3 text-white" onClick={() => onDeleteFun(item)}>
+                  Delete
+                </CButton>
+                <CButton color={"secondary"} onClick={() => UpdateFunc(item)}>
+                  Update
+                </CButton>
+              </td>
+            );
+          },
+        }}
+      />
+      <CModal
+        alignment="center"
+        visible={visible}
+        onClose={() => setVisible(false)}
+        aria-labelledby="VerticallyCenteredExample"
+        size="xl"
+      >
+        <CModalHeader>
+          <CModalTitle id="VerticallyCenteredExample">Modal title</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <Dashboard formData={updatedata}/>
+        </CModalBody>
+        
+      </CModal>
+    </div>
+  );
+};
+
+export default Table;

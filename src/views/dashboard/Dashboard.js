@@ -1,12 +1,28 @@
 import { CCard, CCardHeader, CForm, CFormInput, CCardBody, CButton, CFormSelect } from '@coreui/react';
 import React from 'react';
+import { useEffect } from "react";
 import { useForm, Controller } from 'react-hook-form';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const Dashboard = () => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
+const Dashboard = (props) => {
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm();
+  const navigate = useNavigate()
+  React.useEffect(() => {
+    if (props.formData) {
+      Object.keys(props.formData).forEach(key => {
+        setValue(key, props.formData[key]);
 
-  // Get the current date in the format YYYY-MM-DD
+      });
+      const formattedDate = props?.formData?.date?.split('.').reverse().join('-');
+      setValue('date', formattedDate);
+    }
+  }, [props.formData, setValue]);
+
+  console.log(props.formData, "formdata");
+
+
+
   const getCurrentDate = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -17,13 +33,19 @@ const Dashboard = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post('https://api.vaahansafety.org/api/transportations', data);
-      console.log('Response:', response.data);
-      // Handle response data as needed
+      if (props?.formData?.id) {
+        const response = await axios.put(`https://api.vaahansafety.org/api/transportations/${props?.formData?.id}`, data);
+        console.log('Response:', response.data);
+        navigate("/paymentReport");
+      } else {
+        const response = await axios.post('https://api.vaahansafety.org/api/transportations', data);
+        console.log('Response:', response.data);
+        navigate("/paymentReport");
+      }
     } catch (error) {
       console.error('Error:', error);
-      // Handle error
     }
+
   };
 
   return (
@@ -105,6 +127,9 @@ const Dashboard = () => {
           {/* Additional form fields */}
           <div className='row'>
             <div className='col-sm-6'>
+              <CCardHeader>
+                <h3>From Details</h3>
+              </CCardHeader>
               <div className='col-sm-12 mb-3'>
                 <Controller
                   name="from_company_name"
@@ -127,15 +152,12 @@ const Dashboard = () => {
                   control={control}
                   rules={{
                     required: 'From total amount is required',
-                    pattern: {
-                      value: /^[0-9]*$/,
-                      message: 'Please enter a valid number'
-                    }
+                    
                   }}
                   render={({ field }) => (
                     <CFormInput
                       {...field}
-                      type="text"
+                      type="number"
                       placeholder="From Total Amount"
                     />
                   )}
@@ -157,7 +179,7 @@ const Dashboard = () => {
                   render={({ field }) => (
                     <CFormInput
                       {...field}
-                      type="text"
+                      type="number"
                       placeholder="From Phone Number"
                     />
                   )}
@@ -165,9 +187,10 @@ const Dashboard = () => {
                 {errors.from_phone_no && <div className="text-danger">{errors.from_phone_no.message}</div>}
               </div>
             </div>
-
             <div className='col-sm-6'>
-
+              <CCardHeader>
+                <h3>To Details</h3>
+              </CCardHeader>
               <div className='col-sm-12 mb-3'>
                 <Controller
                   name="to_company_name"
@@ -189,16 +212,12 @@ const Dashboard = () => {
                   name="to_total_amount"
                   rules={{
                     required: 'To total amount is required',
-                    pattern: {
-                      value: /^[0-9]*$/,
-                      message: 'Please enter a valid number'
-                    }
                   }}
                   control={control}
                   render={({ field }) => (
                     <CFormInput
                       {...field}
-                      type="text"
+                      type="number"
                       placeholder="To Total Amount"
                     />
                   )}
@@ -220,7 +239,7 @@ const Dashboard = () => {
                   render={({ field }) => (
                     <CFormInput
                       {...field}
-                      type="text"
+                      type="number"
                       placeholder="To Phone Number"
                     />
                   )}
@@ -232,16 +251,13 @@ const Dashboard = () => {
                   name="paid_amount"
                   rules={{
                     required: 'To Paid amount is required',
-                    pattern: {
-                      value: /^[0-9]*$/,
-                      message: 'Please enter a Paid Amount'
-                    }
+                   
                   }}
                   control={control}
                   render={({ field }) => (
                     <CFormInput
                       {...field}
-                      type="text"
+                      type="number"
                       placeholder="Paid Amount"
                     />
                   )}
